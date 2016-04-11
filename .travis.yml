@@ -5,19 +5,17 @@ language: generic
 
 matrix:
   include:
-    - env: ANSIBLE_VERSION=ppa:ansible/ansible
-    - env: ANSIBLE_VERSION=ppa:ansible/ansible-1.9
+    - env: ANSIBLE_VERSION=ppa:ansible/ansible APT_OPTIONS=""
+    - env: ANSIBLE_VERSION=ppa:ansible/ansible-1.9 APT_OPTIONS=""
+    - env: APT_OPTIONS="-t trusty-backports"
 
 before_install:
  - sudo apt-get -y install software-properties-common
- - sudo apt-add-repository -y $ANSIBLE_VERSION
+ - sudo [[ ! -v ANSIBLE_VERSION ]] || apt-add-repository -y $ANSIBLE_VERSION
  - sudo apt-get -y update
- - sudo apt-get -y install ansible
+ - sudo apt-get -y install $APT_OPTIONS ansible
  - ansible --version
 
 script:
  - echo localhost > inventory
  - ansible-playbook -i inventory --connection=local --sudo -v test/test.yml
-
-notifications:
-  webhooks: https://galaxy.ansible.com/api/v1/notifications/
